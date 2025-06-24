@@ -9,7 +9,9 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "Book Reader - Minimalist Reading Experience",
   description: "A beautiful, minimalist platform for reading books online",
-    generator: 'v0.dev'
+  icons: {
+    icon: "/favicon.ico",
+  },
 }
 
 export default function RootLayout({

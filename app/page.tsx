@@ -88,7 +88,7 @@ export default function HomePage() {
                     onClick={() => setShowAuthModal(true)}
                     className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200"
                   >
-                    Sign In
+                    Entrar
                   </button>
                 )}
               </div>
