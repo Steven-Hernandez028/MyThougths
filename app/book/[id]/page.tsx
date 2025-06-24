@@ -4,9 +4,12 @@ import { useState, useEffect, useRef } from "react"
 import { ViewTransition } from "@/components/view-transition"
 import { useParams, useRouter } from "next/navigation"
 import { ChevronLeft, ChevronRight, Home } from "lucide-react"
-import { books } from "@/lib/data"
 import { Button } from "@/components/ui/button"
 import { saveReadingProgress, getReadingProgress } from "@/lib/reading-progress"
+import { bookService } from "@/lib/services/bookService"
+import { useNotification } from "@/hooks/useNotification"
+import { Book } from "@/lib/entities/Book"
+import LoadingSpinner from "@/components/ui/LoadingSpinner"
 
 export default function BookPage() {
   const params = useParams()
@@ -17,8 +20,29 @@ export default function BookPage() {
   const scrollTimeoutRef = useRef<NodeJS.Timeout>()
   const lastScrollTop = useRef(0)
   const scrollDirection = useRef<"up" | "down" | null>(null)
+  const [book, setBook] = useState<Book>()
 
-  const book = books.find((b) => b.id === params.id)
+  const { error } = useNotification()
+  const loadBooks = async () => {
+    try {
+      const fetchedBooks = await bookService.getBooks()
+      if (!fetchedBooks || fetchedBooks.length === 0) {
+        error("No books found", "Please add some books to your library.")
+        return
+      }
+      const book = fetchedBooks.find((b) => b.id === params.id) as Book
+
+      setBook(book)
+    } catch (err) {
+      error("Failed to load books", err instanceof Error ? err.message : "Unknown error")
+    } finally {
+    }
+  }
+
+  useEffect(() => {
+    loadBooks();
+
+  }, [])
 
   // Load reading progress on mount
   useEffect(() => {
@@ -114,7 +138,7 @@ export default function BookPage() {
   if (!book) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-stone-500">Book not found</p>
+        <LoadingSpinner></LoadingSpinner>
       </div>
     )
   }
@@ -135,16 +159,16 @@ export default function BookPage() {
                 className="text-stone-600 hover:text-stone-800"
               >
                 <Home className="w-4 h-4 mr-2" />
-                Library
+                Biblioteca
               </Button>
 
               <div className="text-center">
                 <h1 className="text-lg font-medium text-stone-800">{book.title}</h1>
-                <p className="text-sm text-stone-500">by {book.author}</p>
+                <p className="text-sm text-stone-500">Por {book.author}</p>
               </div>
 
               <div className="text-sm text-stone-500">
-                Chapter {currentChapter + 1} of {book.chapters.length}
+                Capitulo {currentChapter + 1} of {book.chapters.length}
               </div>
             </div>
           </div>
@@ -161,7 +185,7 @@ export default function BookPage() {
               className="bg-white/80 hover:bg-white"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
-              Previous
+              Anterior
             </Button>
 
             <h2 className="text-xl font-light text-stone-800 text-center">{currentChapterData.title}</h2>
@@ -173,7 +197,7 @@ export default function BookPage() {
               disabled={currentChapter === book.chapters.length - 1}
               className="bg-white/80 hover:bg-white"
             >
-              Next
+              Siguiente
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>

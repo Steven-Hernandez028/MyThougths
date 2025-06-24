@@ -43,15 +43,15 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
         <div className="mx-auto w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center mb-4">
           <LogIn className="w-6 h-6 text-stone-600" />
         </div>
-        <CardTitle className="text-2xl font-light">Welcome Back</CardTitle>
-        <p className="text-stone-600">Sign in to your account</p>
+        <CardTitle className="text-2xl font-light">Bienvenido Administrador</CardTitle>
+        <p className="text-stone-600">Entra en tu cuenta</p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">{error}</div>}
 
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Correo Electronico</Label>
             <Input
               id="email"
               type="email"
@@ -64,7 +64,7 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Contrasena</Label>
             <div className="relative">
               <Input
                 id="password"
@@ -93,18 +93,18 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? "Ingresando..." : "Entrar"}
           </Button>
 
           <div className="text-center">
-            <button
+            {/* <button
               type="button"
               onClick={onToggleMode}
               className="text-sm text-stone-600 hover:text-stone-800 transition-colors"
               disabled={isLoading}
             >
               Don't have an account? Sign up
-            </button>
+            </button> */}
           </div>
         </form>
       </CardContent>

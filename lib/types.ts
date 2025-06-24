@@ -6,9 +6,10 @@ export interface Book {
   description: string
   coverImage: string
   chapters: Chapter[]
+  createdAt : Date
+
   status: "draft" | "published"
-  publishedDate?: string
-  createdDate: string
+  publishedDate?: Date
 }
 
 export interface Chapter {

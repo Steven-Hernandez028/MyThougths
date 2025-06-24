@@ -22,7 +22,6 @@ export async function initializeDatabase() {
     try {
       await AppDataSource.initialize()
       isInitialized = true
-      console.log("Database connection initialized")
     } catch (error) {
       console.error("Error during Data Source initialization:", error)
       throw error

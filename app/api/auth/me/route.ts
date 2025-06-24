@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
       fullName: user.fullName,
       isAdmin: user.isAdmin,
     }
-    console.log("User data retrieved successfully:", userData )
 
     return NextResponse.json(userData)
   } catch (error) {

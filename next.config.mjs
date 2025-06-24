@@ -45,6 +45,11 @@ const nextConfig = {
           commonjsMagicComments: true,
         },
       };
+
+      config.resolve.alias = {
+        ...(config.resolve.alias || {}),
+        'react-native-sqlite-storage': false
+      };
     }
 
     return config;

@@ -28,7 +28,7 @@ export function BookCard({ book, index }: BookCardProps) {
     router.push(`/book/${book.id}`)
   }
 
-  const isNew = isBookNew(book.publishedDate)
+  const isNew = isBookNew(book.publishedDate?.toString())
 
   return (
     <ViewTransition name={`book-${book.id}`}>
@@ -46,7 +46,7 @@ export function BookCard({ book, index }: BookCardProps) {
           {/* New Badge */}
           {isNew && (
             <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-emerald-400 to-cyan-400 text-white text-xs font-medium px-2 py-1 rounded-full animate-pulse">
-              NEW
+              NUEVO
             </div>
           )}
 
@@ -61,7 +61,7 @@ export function BookCard({ book, index }: BookCardProps) {
             {readingProgress > 0 && (
               <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs p-2">
                 <div className="flex items-center justify-between mb-1">
-                  <span>Progress</span>
+                  <span>Progreso</span>
                   <span>{Math.round(readingProgress)}%</span>
                 </div>
                 <div className="w-full bg-white/20 rounded-full h-1">
@@ -86,9 +86,9 @@ export function BookCard({ book, index }: BookCardProps) {
           <div className="px-6 pb-6">
             <div className="w-full h-px bg-gradient-to-r from-transparent via-stone-200 to-transparent mb-4" />
             <div className="flex items-center justify-between text-xs text-stone-500">
-              <span>{book.chapters.length} chapters</span>
+              <span>{book.chapters.length} Capitul{(book.chapters.length > 1? "os" : "o" )}</span>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
-                {readingProgress > 0 ? "Continue reading →" : "Read now →"}
+                {readingProgress > 0 ? "Continua leyendo →" : "Lee ahora →"}
               </span>
             </div>
           </div>

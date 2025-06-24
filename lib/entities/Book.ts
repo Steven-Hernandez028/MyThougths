@@ -35,7 +35,7 @@ export class Book {
   status: BookStatus
 
   @Column({ nullable: true })
-  publishedDate?: Date | null
+  publishedDate: Date
 
   @CreateDateColumn()
   createdAt: Date

@@ -4,9 +4,11 @@ import { useState, useEffect } from "react"
 import { ViewTransition } from "@/components/view-transition"
 import { BookCard } from "@/components/book-card"
 import { SearchBar } from "@/components/search-bar"
-import { books } from "@/lib/data"
 import { useAuth } from "@/hooks/useAuth"
 import { AuthModal } from "@/components/auth/auth-modal"
+import { Book } from "@/lib/entities/Book"
+import { bookService } from "@/lib/services/bookService"
+import { useNotification } from "@/hooks/useNotification"
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -14,8 +16,22 @@ export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false)
   const { user, loading } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
+  const { success, error } = useNotification()
 
-  // Only show published books
+  const [books, setBooks] = useState<Book[]>([])
+
+  // Load books
+  const loadBooks = async () => {
+    try {
+      setIsLoaded(true)
+      const fetchedBooks = await bookService.getBooks()
+      setBooks(fetchedBooks)
+    } catch (err) {
+      error("Failed to load books", err instanceof Error ? err.message : "Unknown error")
+    } finally {
+      setIsLoaded(true)
+    }
+  }
   const publishedBooks = books.filter((book) => book.status === "published")
 
   const filteredBooks = publishedBooks.filter((book) => {
@@ -29,9 +45,14 @@ export default function HomePage() {
   const genres = ["all", ...Array.from(new Set(publishedBooks.map((book) => book.genre)))]
 
   useEffect(() => {
-    setIsLoaded(true)
+    loadBooks();
   }, [])
 
+ useEffect(() => {
+  if(loading) return
+
+  setShowAuthModal(false)
+  }, [])
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -47,8 +68,8 @@ export default function HomePage() {
           className={`sticky top-0 z-10 bg-white/80 backdrop-blur-md border-b border-stone-200 transition-all duration-1000 ${isLoaded ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}`}
         >
           <div className="max-w-7xl mx-auto px-4 py-6">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-light text-stone-800 tracking-wide animate-fade-in-left">Library</h1>
+            <div className="flex items-center justify-between ">
+              <h1 className="text-3xl font-light text-stone-800 tracking-wide animate-fade-in-left">Mis pensamientos</h1>
               <div className="flex items-center gap-4">
                 {user ? (
                   <>
@@ -76,25 +97,13 @@ export default function HomePage() {
             <div
               className={`flex flex-col sm:flex-row gap-4 transition-all duration-700 delay-300 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}`}
             >
-              <SearchBar value={searchQuery} onChange={setSearchQuery} placeholder="Search books or authors..." />
 
-              <select
-                value={selectedGenre}
-                onChange={(e) => setSelectedGenre(e.target.value)}
-                className="px-4 py-2 rounded-full border border-stone-300 bg-white text-stone-700 focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-all duration-200 hover:shadow-md"
-              >
-                {genres.map((genre) => (
-                  <option key={genre} value={genre}>
-                    {genre === "all" ? "All Genres" : genre.charAt(0).toUpperCase() + genre.slice(1)}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
         </header>
 
         <main className="max-w-7xl mx-auto px-4 py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
             {filteredBooks.map((book, index) => (
               <BookCard key={book.id} book={book} index={index} />
             ))}
