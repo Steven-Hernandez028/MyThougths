@@ -4,7 +4,6 @@ import type { NextRequest } from "next/server"
 import { verifyToken } from "./jwt"
 import { getDataSource } from "../db/data-source"
 import { User } from "../entities/User"
-
 export async function getAuthenticatedUser(request: NextRequest): Promise<User | null> {
   try {
     const token = request.cookies.get("auth-token")?.value
