@@ -5,17 +5,54 @@ import React from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Edit, Trash2 } from "lucide-react"
-import { Book, BookStatus } from "@/lib/entities/Book"
+
+export enum BookStatus {
+  DRAFT = "draft",
+  PUBLISHED = "published",
+}
+
+export interface BookDTO {
+  id: string
+  title: string
+  author: string
+  genre: string
+  description: string
+  coverImage: string | null
+  status: BookStatus
+  publishedDate: Date | null
+  createdAt: Date
+  updatedAt: Date
+  chapters: ChapterDTO[] // Puedes definir esto aparte
+  readingProgress: ReadingProgressDTO[] // Puedes definir esto aparte
+}
+export interface ChapterDTO {
+  id: string
+  title: string
+  content: string
+  order: number
+  createdAt: Date
+  updatedAt: Date
+  bookId: string
+}
+export interface ReadingProgressDTO {
+  id: string
+  chapterIndex: number
+  scrollPosition: number
+  createdAt: Date
+  updatedAt: Date
+  userId: string
+  bookId: string
+}
 
 interface BookGridProps {
-  books: Book[]
-  onEdit: (book: Book) => void
+  books: BookDTO[]
+  onEdit: (book: BookDTO) => void
   onDelete: (bookId: string) => void
   isLoading?: boolean
 }
 
 export default function BookGrid({ books, onEdit, onDelete, isLoading = false }: BookGridProps) {
-  const handleDelete = (book: Book) => {
+  const handleDelete = (book: BookDTO) => {
     if (confirm(`Are you sure you want to delete "${book.title}"?`)) {
       onDelete(book.id)
     }

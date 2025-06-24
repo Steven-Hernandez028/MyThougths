@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Plus, Trash2, X, Save } from "lucide-react"
-import { Book, BookStatus } from "@/lib/entities/Book"
+import { BookDTO, BookStatus } from "./BookGrid"
 
 interface BookFormData {
   title: string
@@ -23,7 +23,7 @@ interface BookFormData {
 }
 
 interface BookFormProps {
-  book?: Book | null
+  book?: BookDTO | null
   onSubmit: (data: BookFormData) => Promise<void>
   onCancel: () => void
   isLoading?: boolean

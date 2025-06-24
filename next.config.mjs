@@ -48,7 +48,9 @@ const nextConfig = {
           commonjsMagicComments: true,
         },
       };
-
+      config.infrastructureLogging = {
+        level: 'log',
+      }
       config.resolve.alias = {
         ...(config.resolve.alias || {}),
         'react-native-sqlite-storage': false
