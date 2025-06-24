@@ -8,8 +8,8 @@ import { ReadingProgress } from "../entities/ReadingProgress"
 export const AppDataSource = new DataSource({
   type: "postgres",
   url: "postgresql://postgres:KnTPcjoLwwSJTkFjcbkBYQoxANTCkYZP@switchback.proxy.rlwy.net:21074/railway",
-  synchronize: true, // Set to false in production
-  logging: process.env.NODE_ENV === "development",
+  synchronize: false, // Set to false in production
+  logging: true,
   entities: [User, Book, Chapter, ReadingProgress],
   migrations: [],
   subscribers: [],
