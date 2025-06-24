@@ -10,7 +10,7 @@ export const AppDataSource = new DataSource({
   url: process.env.DATABASE_URL!,
   synchronize: false, // Set to false in production
   logging: true,
-  entities: [User, Book, Chapter, ReadingProgress],
+  entities: [Book,User,  Chapter, ReadingProgress],
   migrations: [],
   subscribers: [],
 })

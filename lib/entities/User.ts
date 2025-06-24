@@ -1,5 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm"
-import type { ReadingProgress } from "./ReadingProgress"
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from "typeorm"
+import { ReadingProgress } from "./ReadingProgress"
 
 export enum UserRole {
   USER = "user",
@@ -39,7 +46,7 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date
 
-  @OneToMany("ReadingProgress", "user")
+  @OneToMany(() => ReadingProgress, (readingProgress) => readingProgress.user)
   readingProgress: ReadingProgress[]
 
   // Virtual properties

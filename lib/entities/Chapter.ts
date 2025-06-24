@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import type { Book } from "./Book"
+import { Book } from "./Book" // Importación normal, no solo tipo
 
 @Entity("chapters")
 export class Chapter {
@@ -29,7 +29,7 @@ export class Chapter {
   @UpdateDateColumn()
   updatedAt: Date
 
-  @ManyToOne("Book", "chapters", { onDelete: "CASCADE" })
+  @ManyToOne(() => Book, (book) => book.chapters, { onDelete: "CASCADE" }) // Función flecha que retorna la clase
   @JoinColumn({ name: "bookId" })
   book: Book
 
