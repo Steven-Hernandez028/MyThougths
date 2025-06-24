@@ -15,7 +15,9 @@ const nextConfig = {
   env: {
     DATABASE_URL: process.env.DATABASE_URL,
   },
+  
   webpack: (config, { isServer }) => {
+
     if (isServer) {
       // Ignorar las dependencias opcionales de TypeORM que no uses
       config.externals.push({
