@@ -10,7 +10,10 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    serverComponentsExternalPackages: ['typeorm']
+    serverComponentsExternalPackages: ['typeorm'],
+  },
+  env: {
+    DATABASE_URL: process.env.DATABASE_URL,
   },
   webpack: (config, { isServer }) => {
     if (isServer) {
