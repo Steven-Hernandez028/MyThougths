@@ -8,8 +8,8 @@ import {
   JoinColumn,
   Unique,
 } from "typeorm"
-import { User } from "./User"
-import { Book } from "./Book"
+import type { User } from "./User"
+import type { Book } from "./Book"
 
 @Entity("reading_progress")
 @Unique(["userId", "bookId"])
@@ -29,22 +29,14 @@ export class ReadingProgress {
   @UpdateDateColumn()
   updatedAt: Date
 
-  @ManyToOne(
-    () => User,
-    (user) => user.readingProgress,
-    { onDelete: "CASCADE" },
-  )
+  @ManyToOne("User", "readingProgress", { onDelete: "CASCADE" })
   @JoinColumn({ name: "userId" })
   user: User
 
   @Column()
   userId: string
 
-  @ManyToOne(
-    () => Book,
-    (book) => book.readingProgress,
-    { onDelete: "CASCADE" },
-  )
+  @ManyToOne("Book", "readingProgress", { onDelete: "CASCADE" })
   @JoinColumn({ name: "bookId" })
   book: Book
 

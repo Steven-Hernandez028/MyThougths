@@ -42,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const userData = await response.json()
         setUser(userData)
+        console.log("User fetched successfully:", userData)
       } else {
         setUser(null)
       }
@@ -92,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (response.ok) {
         setUser(data.user)
+        console.log("Registration successful:", data.user)
         return { success: true }
       } else {
         return { success: false, error: data.error || "Registration failed" }

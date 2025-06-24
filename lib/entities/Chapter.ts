@@ -7,7 +7,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from "typeorm"
-import { Book } from "./Book"
+import type { Book } from "./Book"
 
 @Entity("chapters")
 export class Chapter {
@@ -29,11 +29,7 @@ export class Chapter {
   @UpdateDateColumn()
   updatedAt: Date
 
-  @ManyToOne(
-    () => Book,
-    (book) => book.chapters,
-    { onDelete: "CASCADE" },
-  )
+  @ManyToOne("Book", "chapters", { onDelete: "CASCADE" })
   @JoinColumn({ name: "bookId" })
   book: Book
 

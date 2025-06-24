@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from "typeorm"
-import { Chapter } from "./Chapter"
-import { ReadingProgress } from "./ReadingProgress"
+import type { Chapter } from "./Chapter"
+import type { ReadingProgress } from "./ReadingProgress"
 
 export enum BookStatus {
   DRAFT = "draft",
@@ -35,7 +35,7 @@ export class Book {
   status: BookStatus
 
   @Column({ nullable: true })
-  publishedDate: Date
+  publishedDate?: Date | null
 
   @CreateDateColumn()
   createdAt: Date
@@ -43,17 +43,10 @@ export class Book {
   @UpdateDateColumn()
   updatedAt: Date
 
-  @OneToMany(
-    () => Chapter,
-    (chapter) => chapter.book,
-    { cascade: true },
-  )
+  @OneToMany("Chapter", "book", { cascade: true })
   chapters: Chapter[]
 
-  @OneToMany(
-    () => ReadingProgress,
-    (progress) => progress.book,
-  )
+  @OneToMany("ReadingProgress", "book")
   readingProgress: ReadingProgress[]
 
   // Virtual properties

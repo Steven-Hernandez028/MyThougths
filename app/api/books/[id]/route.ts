@@ -3,117 +3,192 @@ import { getDataSource } from "@/lib/db/data-source"
 import { Book, BookStatus } from "@/lib/entities/Book"
 import { Chapter } from "@/lib/entities/Chapter"
 import { requireAdmin, getAuthenticatedUser } from "@/lib/auth/middleware"
+import { Repository } from "typeorm"
 
-// GET /api/books/[id] - Get single book
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const dataSource = await getDataSource()
-    const bookRepository = dataSource.getRepository(Book)
-
-    const user = await getAuthenticatedUser(request)
-
-    const book = await bookRepository.findOne({
-      where: { id: params.id },
-      relations: ["chapters"],
-    })
-
-    if (!book) {
-      return NextResponse.json({ error: "Book not found" }, { status: 404 })
-    }
-
-    // Check if user can access this book
-    if (book.status === BookStatus.DRAFT && (!user || !user.isAdmin)) {
-      return NextResponse.json({ error: "Book not found" }, { status: 404 })
-    }
-
-    // Sort chapters by order
-    book.chapters.sort((a, b) => a.order - b.order)
-
-    return NextResponse.json(book)
-  } catch (error) {
-    console.error("Get book error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
-  }
+interface BookUpdateData {
+  title: string
+  author: string
+  genre: string
+  description: string
+  coverImage: string
+  status: BookStatus
+  chapters?: Array<{
+    title: string
+    content: string
+  }>
 }
 
-// PUT /api/books/[id] - Update book (admin only)
-export const PUT = requireAdmin(async (request: NextRequest, user, { params }: { params: { id: string } }) => {
-  try {
-    const { title, author, genre, description, coverImage, status, chapters } = await request.json()
+interface RouteParams {
+  params: { id: string }
+}
 
-    const dataSource = await getDataSource()
-    const bookRepository = dataSource.getRepository(Book)
-    const chapterRepository = dataSource.getRepository(Chapter)
+class BookService {
+  private bookRepository: Repository<Book>
+  private chapterRepository: Repository<Chapter>
 
-    const book = await bookRepository.findOne({
-      where: { id: params.id },
+  constructor(bookRepo: Repository<Book>, chapterRepo: Repository<Chapter>) {
+    this.bookRepository = bookRepo
+    this.chapterRepository = chapterRepo
+  }
+
+  async findBookById(id: string): Promise<Book | null> {
+    return await this.bookRepository.findOne({
+      where: { id },
       relations: ["chapters"],
     })
+  }
 
-    if (!book) {
-      return NextResponse.json({ error: "Book not found" }, { status: 404 })
+  async canUserAccessBook(book: Book, user: any): Promise<boolean> {
+    if (book.status === BookStatus.DRAFT) {
+      return user && user.isAdmin
     }
+    return true
+  }
 
+  async updateBook(book: Book, updateData: BookUpdateData): Promise<Book | null> {
     // Update book properties
-    book.title = title
-    book.author = author
-    book.genre = genre
-    book.description = description
-    book.coverImage = coverImage
+    Object.assign(book, {
+      title: updateData.title,
+      author: updateData.author,
+      genre: updateData.genre,
+      description: updateData.description,
+      coverImage: updateData.coverImage,
+    })
 
     // Handle status change
-    if (status !== book.status) {
-      book.status = status
-      if (status === BookStatus.PUBLISHED && !book.publishedDate) {
+    if (updateData.status !== book.status) {
+      book.status = updateData.status
+      if (updateData.status === BookStatus.PUBLISHED && !book.publishedDate) {
         book.publishedDate = new Date()
       }
     }
 
-    await bookRepository.save(book)
+    await this.bookRepository.save(book)
 
-    // Update chapters - delete existing and create new ones
-    await chapterRepository.delete({ bookId: book.id })
+    // Update chapters
+    if (updateData.chapters) {
+      await this.updateBookChapters(book.id, updateData.chapters)
+    }
 
-    if (chapters && chapters.length > 0) {
-      const chapterEntities = chapters.map((chapter: any, index: number) =>
-        chapterRepository.create({
+    return await this.findBookById(book.id)
+  }
+
+  private async updateBookChapters(bookId: string, chapters: Array<{ title: string; content: string }>) {
+    // Delete existing chapters
+    await this.chapterRepository.delete({ bookId })
+
+    if (chapters.length > 0) {
+      const chapterEntities = chapters.map((chapter, index) =>
+        this.chapterRepository.create({
           title: chapter.title,
           content: chapter.content,
           order: index,
-          bookId: book.id,
-        }),
+          bookId,
+        })
       )
-      await chapterRepository.save(chapterEntities)
+      await this.chapterRepository.save(chapterEntities)
+    }
+  }
+
+  async deleteBook(id: string): Promise<boolean> {
+    const book = await this.bookRepository.findOne({ where: { id } })
+    if (!book) {
+      return false
     }
 
-    // Return updated book with chapters
-    const updatedBook = await bookRepository.findOne({
-      where: { id: book.id },
-      relations: ["chapters"],
-    })
+    await this.bookRepository.remove(book)
+    return true
+  }
 
-    return NextResponse.json(updatedBook)
+  sortChaptersByOrder(book: Book): void {
+    book.chapters.sort((a, b) => a.order - b.order)
+  }
+}
+
+// Utility functions
+async function createBookService(): Promise<BookService> {
+  const dataSource = await getDataSource()
+  const bookRepository = dataSource.getRepository(Book)
+  const chapterRepository = dataSource.getRepository(Chapter)
+  return new BookService(bookRepository, chapterRepository)
+}
+
+function createErrorResponse(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status })
+}
+
+function createSuccessResponse(data: any, status: number = 200) {
+  return NextResponse.json(data, { status })
+}
+
+// Route Handlers
+export async function GET(request: NextRequest, { params }: RouteParams) {
+  try {
+    const bookService = await createBookService()
+    const user = await getAuthenticatedUser(request)
+    
+    const book = await bookService.findBookById(params.id)
+    if (!book) {
+      return createErrorResponse("Book not found", 404)
+    }
+
+    if (!bookService.canUserAccessBook(book, user)) {
+      return createErrorResponse("Book not found", 404)
+    }
+
+    bookService.sortChaptersByOrder(book)
+    return createSuccessResponse(book)
+    
+  } catch (error) {
+    console.error("Get book error:", error)
+    return createErrorResponse("Internal server error", 500)
+  }
+}
+
+export async function PUT(request: NextRequest, { params }: RouteParams) {
+  try {
+    // Validate admin access first
+    const user = await getAuthenticatedUser(request)
+    if (!user || !user.isAdmin) {
+      return createErrorResponse("Unauthorized", 401)
+    }
+
+    const updateData: BookUpdateData = await request.json()
+    const bookService = await createBookService()
+    
+    const book = await bookService.findBookById(params.id)
+    if (!book) {
+      return createErrorResponse("Book not found", 404)
+    }
+
+    const updatedBook = await bookService.updateBook(book, updateData)
+    return createSuccessResponse(updatedBook)
+    
   } catch (error) {
     console.error("Update book error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return createErrorResponse("Internal server error", 500)
   }
-})
+}
 
-// DELETE /api/books/[id] - Delete book (admin only)
-export const DELETE = requireAdmin(async (request: NextRequest, user, { params }: { params: { id: string } }) => {
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const dataSource = await getDataSource()
-    const bookRepository = dataSource.getRepository(Book)
-
-    const book = await bookRepository.findOne({ where: { id: params.id } })
-    if (!book) {
-      return NextResponse.json({ error: "Book not found" }, { status: 404 })
+    // Validate admin access first
+    const user = await getAuthenticatedUser(request)
+    if (!user || !user.isAdmin) {
+      return createErrorResponse("Unauthorized", 401)
     }
 
-    await bookRepository.remove(book)
-    return NextResponse.json({ message: "Book deleted successfully" })
+    const bookService = await createBookService()
+    const deleted = await bookService.deleteBook(params.id)
+    
+    if (!deleted) {
+      return createErrorResponse("Book not found", 404)
+    }
+
+    return createSuccessResponse({ message: "Book deleted successfully" })
+    
   } catch (error) {
     console.error("Delete book error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return createErrorResponse("Internal server error", 500)
   }
-})
+}
