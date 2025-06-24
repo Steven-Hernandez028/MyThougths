@@ -2,7 +2,7 @@
   "name": "my-thoughts",
   "version": "0.1.0",
   "private": true,
-  "type": "module", 
+  "module": "true",
   "scripts": {
     "build": "next build",
     "dev": "next dev",

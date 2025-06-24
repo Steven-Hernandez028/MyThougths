@@ -1,13 +1,7 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn
 } from "typeorm"
-import { Book } from "./Book" // Importación normal, no solo tipo
+import type { Relation } from "typeorm"
 
 @Entity("chapters")
 export class Chapter {
@@ -29,9 +23,9 @@ export class Chapter {
   @UpdateDateColumn()
   updatedAt: Date
 
-  @ManyToOne(() => Book, (book) => book.chapters, { onDelete: "CASCADE" }) // Función flecha que retorna la clase
+  @ManyToOne("Book", "chapters", { onDelete: "CASCADE" })
   @JoinColumn({ name: "bookId" })
-  book: Book
+  book: Relation<any> // usar 'any' o mantener 'Book' si no hay importación directa
 
   @Column()
   bookId: string

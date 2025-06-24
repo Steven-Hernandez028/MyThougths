@@ -1,12 +1,7 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany
 } from "typeorm"
-import { ReadingProgress } from "./ReadingProgress"
+import type { Relation } from "typeorm"
 
 export enum UserRole {
   USER = "user",
@@ -46,10 +41,9 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date
 
-  @OneToMany(() => ReadingProgress, (readingProgress) => readingProgress.user)
-  readingProgress: ReadingProgress[]
+  @OneToMany("ReadingProgress", "user")
+  readingProgress: Relation<any>[]
 
-  // Virtual properties
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`
   }
