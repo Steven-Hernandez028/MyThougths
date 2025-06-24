@@ -2,7 +2,7 @@ import {
   Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany
 } from "typeorm"
 import { Chapter } from "./Chapter"
-import { ReadingProgress } from "./ReadingProgress"
+
 import type { Relation } from "typeorm"
 
 export enum BookStatus {
@@ -49,8 +49,7 @@ export class Book {
   @OneToMany(() => Chapter, (chapter) => chapter.book, { cascade: true })
   chapters: Relation<Chapter>[]
 
-  @OneToMany(() => ReadingProgress, (rp) => rp.book)
-  readingProgress: Relation<ReadingProgress>[]
+
 
   get isPublished(): boolean {
     return this.status === BookStatus.PUBLISHED

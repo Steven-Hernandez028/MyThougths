@@ -1,16 +1,15 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
 import { User } from "../entities/User"
-import { Book } from "../entities/Book"
 import { Chapter } from "../entities/Chapter"
-import { ReadingProgress } from "../entities/ReadingProgress"
+import { Book } from "../entities/Book"
 
 export const AppDataSource = new DataSource({
   type: "postgres",
   url: process.env.DATABASE_URL!,
   synchronize: false, // Set to false in production
   logging: true,
-  entities: [Book,User,  Chapter, ReadingProgress],
+  entities: [Book, Chapter, User], // ✅ Incluye todos aquí
   migrations: [],
   subscribers: [],
 })

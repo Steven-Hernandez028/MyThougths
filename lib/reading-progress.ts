@@ -1,11 +1,11 @@
-import type { ReadingProgress } from "./types"
+import type { BookReadingProgress } from "./types"
 
 const STORAGE_KEY = "book-reading-progress"
 
 export function saveReadingProgress(bookId: string, chapterIndex: number, scrollPosition: number) {
   if (typeof window === "undefined") return
 
-  const progress: ReadingProgress = {
+  const progress: BookReadingProgress = {
     bookId,
     chapterIndex,
     scrollPosition,
@@ -24,14 +24,14 @@ export function saveReadingProgress(bookId: string, chapterIndex: number, scroll
   localStorage.setItem(STORAGE_KEY, JSON.stringify(allProgress))
 }
 
-export function getReadingProgress(bookId: string): ReadingProgress | null {
+export function getReadingProgress(bookId: string): BookReadingProgress | null {
   if (typeof window === "undefined") return null
 
   const allProgress = getAllReadingProgress()
   return allProgress.find((p) => p.bookId === bookId) || null
 }
 
-export function getAllReadingProgress(): ReadingProgress[] {
+export function getAllReadingProgress(): BookReadingProgress[] {
   if (typeof window === "undefined") return []
 
   try {

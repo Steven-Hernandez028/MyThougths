@@ -1,3 +1,5 @@
+
+
 export interface Book {
   id: string
   title: string
@@ -6,8 +8,7 @@ export interface Book {
   description: string
   coverImage: string
   chapters: Chapter[]
-  createdAt : Date
-
+  createdAt: Date
   status: "draft" | "published"
   publishedDate?: Date
 }
@@ -18,7 +19,8 @@ export interface Chapter {
   content: string
 }
 
-export interface ReadingProgress {
+// Renamed from ReadingProgress to avoid TypeORM confusion
+export interface BookReadingProgress {
   bookId: string
   chapterIndex: number
   scrollPosition: number

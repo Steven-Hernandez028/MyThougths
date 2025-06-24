@@ -41,8 +41,6 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date
 
-  @OneToMany("ReadingProgress", "user")
-  readingProgress: Relation<any>[]
 
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`

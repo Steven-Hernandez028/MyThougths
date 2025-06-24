@@ -51,7 +51,7 @@ export async function POST  (request: NextRequest)  {
 
     // Create book
     //@ts-ignore
-    const book = bookRepository.create({
+    const bookF = bookRepository.create({
       title,
       author,
       genre,
@@ -61,7 +61,7 @@ export async function POST  (request: NextRequest)  {
       publishedDate: status === BookStatus.PUBLISHED ? new Date() : null,
     }) as  Book
 
-    const savedBook = await bookRepository.save(book)
+    const savedBook = await bookRepository.save(bookF)
 
     // Create chapters
     const chapterEntities = chapters.map((chapter: any, index: number) =>
