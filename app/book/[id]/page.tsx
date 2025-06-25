@@ -41,6 +41,7 @@ export default function BookPage() {
       const book = fetchedBooks.find((b) => b.id === params.id) as Book
       const orderedBooks = book.chapters.sort((a, b) => a.order - b.order)
       book.chapters = orderedBooks;
+      console.log(book)
 
       setBook(book)
     } catch (err) {
@@ -101,7 +102,7 @@ export default function BookPage() {
       // Scroll al final para capítulo anterior
       setTimeout(() => {
         if (contentRef.current) {
-          contentRef.current.scrollTop = contentRef.current.scrollHeight
+          contentRef.current.scrollTop = 0
         }
         setIsTransitioning(false)
       }, 300)
@@ -168,9 +169,8 @@ export default function BookPage() {
 
   if (!book) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-black to-gray-800">
-        <LoadingSpinner />
-      </div>
+             <LoadingSpinner />
+
     )
   }
 
@@ -310,10 +310,10 @@ export default function BookPage() {
             </div>
           )}
 
-          {/* Main Content 41 37 36 */}
+   
           <div
             ref={contentRef}
-            className="max-w-4xl mx-auto px-6 pb-20 max-h-[calc(100vh-140px)] md:max-h-[calc(100vh-180px)] overflow-y-auto scroll-smooth"
+            className="max-w-4xl mx-auto px-2 pb-20 max-h-[calc(100vh-140px)] md:max-h-[calc(100vh-180px)] overflow-y-auto scroll-smooth"
             style={{
               scrollbarWidth: "thin",
               scrollbarColor: "#b0b0b2 transparent",
