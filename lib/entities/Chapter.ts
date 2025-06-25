@@ -26,7 +26,7 @@ export class Chapter {
 
   @ManyToOne(() => Book, (book) => book.chapters, { onDelete: "CASCADE" })
   @JoinColumn({ name: "bookId" })
-  book: Relation<Book> // usar 'any' o mantener 'Book' si no hay importación directa
+  book: Relation<Book> 
 
   @Column()
   bookId: string

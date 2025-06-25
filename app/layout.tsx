@@ -7,8 +7,8 @@ import { AuthProvider } from "@/hooks/useAuth"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Book Reader - Minimalist Reading Experience",
-  description: "A beautiful, minimalist platform for reading books online",
+  title: "MyThoughts - Comparte y Descubre Ideas",
+  description: "Una plataforma minimalista donde publico y exploraro pensamientos y escritos personales.",
   icons: {
     icon: "/favicon.ico",
   },
