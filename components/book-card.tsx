@@ -50,7 +50,7 @@ export function BookCard({ book, index }: BookCardProps) {
             </div>
           )}
 
-          <div className="aspect-[3/4] overflow-hidden relative">
+          <div className=" overflow-hidden relative">
             <img
               src={book.coverImage || "/placeholder.svg"}
               alt={book.title}

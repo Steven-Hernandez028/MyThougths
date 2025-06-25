@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const { email, password } = await request.json()
 
     if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
+      return NextResponse.json({ error: "Correo Electronico y Contrasena Requeridos" }, { status: 400 })
     }
 
     const dataSource = await getDataSource()
@@ -18,13 +18,13 @@ export async function POST(request: NextRequest) {
     // Find user by email
     const user = await userRepository.findOne({ where: { email, isActive: true } })
     if (!user) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+      return NextResponse.json({ error: "Credenciales invalidas" }, { status: 401 })
     }
 
     // Verify password
     const isValidPassword = await comparePassword(password, user.password)
     if (!isValidPassword) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
+      return NextResponse.json({ error: "Credenciales invalidas" }, { status: 401 })
     }
 
     // Generate JWT token
