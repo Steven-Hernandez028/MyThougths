@@ -48,7 +48,7 @@ export function BookCard({ book, index }: BookCardProps) {
         className={`
           group cursor-pointer transition-all duration-500 ease-out
           ${isHovered ? "transform -translate-y-2 scale-105" : ""}
-          focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 rounded-2xl
+          focus-within:ring-2 focus-within:ring-stone-500 focus-within:ring-offset-2 rounded-2xl
           inline-block
         `}
         style={{
@@ -57,7 +57,7 @@ export function BookCard({ book, index }: BookCardProps) {
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onClick={handleClick}
+      //  onClick={handleClick}
         onKeyDown={handleKeyDown}
         tabIndex={0}
         role="button"
@@ -158,7 +158,7 @@ export function BookCard({ book, index }: BookCardProps) {
                   </span>
                 </div>
                 
-                <div className="flex items-center text-white font-medium bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full hover:bg-white/30 transition-colors">
+                <div onClick={handleClick} className="flex items-center text-white font-medium bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full hover:bg-white/30 transition-colors">
                   <span className="mr-2 text-sm">
                     {readingProgress > 0 ? "Continuar" : "Leer ahora"}
                   </span>
