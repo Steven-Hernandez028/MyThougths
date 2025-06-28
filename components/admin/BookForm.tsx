@@ -37,14 +37,14 @@ export default function BookForm({ book, onSubmit, onCancel, isLoading = false }
     description: book?.description || "",
     coverImage: book?.coverImage || "",
     status: book?.status || BookStatus.DRAFT,
-    chapters: book?.chapters?.map(ch => ({ title: ch.title, content: ch.content })) || [{ title: "", content: "" }],
+    chapters: book?.chapters?.map(ch => ({ title: ch.title, content: ch.content, order: ch.order })).sort((a,b) => a.order - b.order) || [{ title: "", content: "", order: 0 }],
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     try {
-     await onSubmit(formData)
+      await onSubmit(formData)
     } catch (error) {
       console.error('Form submission error:', error)
     }
@@ -69,7 +69,7 @@ export default function BookForm({ book, onSubmit, onCancel, isLoading = false }
   const updateChapter = (index: number, field: 'title' | 'content', value: string) => {
     setFormData(prev => ({
       ...prev,
-      chapters: prev.chapters.map((chapter, i) => 
+      chapters: prev.chapters.map((chapter, i) =>
         i === index ? { ...chapter, [field]: value } : chapter
       ),
     }))
@@ -161,10 +161,10 @@ export default function BookForm({ book, onSubmit, onCancel, isLoading = false }
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <Label className="text-lg font-medium">Chapters</Label>
-              <Button 
-                type="button" 
-                onClick={addChapter} 
-                variant="outline" 
+              <Button
+                type="button"
+                onClick={addChapter}
+                variant="outline"
                 size="sm"
                 disabled={isLoading}
               >
