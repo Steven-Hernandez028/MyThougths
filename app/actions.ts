@@ -12,7 +12,6 @@ let subscription: webpush.PushSubscription | null = null
  
 export async function subscribeUser(sub: webpush.PushSubscription) {
   subscription = sub
-  console.log(sub)
   // In a production environment, you would want to store the subscription in a database
   // For example: await db.subscriptions.create({ data: sub })
   return { success: true }

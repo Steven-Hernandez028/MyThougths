@@ -74,7 +74,6 @@ export default function AdminPage() {
         ))
         success("Book updated successfully")
       } else {
-        console.log('Creating book with data:', data)
         const newBook = await bookService.createBook(data as BookCreateData)
         setBooks(prev => [newBook, ...prev])
         success("Book created successfully")

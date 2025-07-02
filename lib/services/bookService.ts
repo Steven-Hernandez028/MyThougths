@@ -47,7 +47,6 @@ class BookService {
   }
 
   async createBook(data: BookCreateData): Promise<Book> {
-    console.log("Creating book with data:", data)
     
     return this.request<Book>('/api/books', {
       method: 'POST',

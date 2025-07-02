@@ -13,17 +13,17 @@ import PushNotificationManager from "@/components/NotificationClient"
 
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false)
-  const { user, loading,logout } = useAuth()
+  const { user, loading, logout } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { success, error } = useNotification()
 
   const [books, setBooks] = useState<Book[]>([])
 
 
-  useEffect(()=>{
-    if(user)
-    setShowAuthModal(false)
-  },[user])
+  useEffect(() => {
+    if (user)
+      setShowAuthModal(false)
+  }, [user])
 
 
   // Load books
@@ -71,16 +71,18 @@ export default function HomePage() {
               <div className="flex items-center gap-4">
                 {user ? (
                   <>
-                    <PushNotificationManager />
                     <span className="text-sm text-stone-600">Hola {user.firstName}</span>
                     {
-                      !user.isAdmin && (
+                      !user.isAdmin && (<>
+                          <PushNotificationManager />
                         <button
                           onClick={logout}
                           className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200"
                         >
                           Cerrar sesión
                         </button>
+
+                      </>
                       )
                     }
                     {user.isAdmin && (
@@ -118,7 +120,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          {filteredBooks.length  === 0 && !isLoaded && (
+          {filteredBooks.length === 0 && !isLoaded && (
             <div className="text-center py-16 animate-fade-in">
               <p className="text-stone-500 text-lg">No books found matching your criteria.</p>
             </div>

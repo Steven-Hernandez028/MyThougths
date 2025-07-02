@@ -8,15 +8,14 @@ export default function PushNotificationManager() {
     null
   )
   const [message, setMessage] = useState('')
- 
+
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
-      console.log("supported")
       setIsSupported(true)
       registerServiceWorker()
     }
   }, [])
- 
+
   async function registerServiceWorker() {
     const registration = await navigator.serviceWorker.register('/custom-sw.js', {
       scope: '/',
@@ -25,7 +24,7 @@ export default function PushNotificationManager() {
     const sub = await registration.pushManager.getSubscription()
     setSubscription(sub)
   }
-   function urlBase64ToUint8Array(base64String: string) {
+  function urlBase64ToUint8Array(base64String: string) {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
     const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
 
@@ -39,42 +38,45 @@ export default function PushNotificationManager() {
   }
 
   async function subscribeToPush() {
-    const registration = await navigator.serviceWorker.ready
-    const data = await fetch("/api/notifications")
-    const { publicKey }  =await data.json();
-    const sub = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(
-       publicKey
-      ),
-    })
-    setSubscription(sub)
-    const serializedSub = JSON.parse(JSON.stringify(sub))
-    await subscribeUser(serializedSub)
+    try {
+      const registration = await navigator.serviceWorker.ready
+      const data = await fetch("/api/notifications")
+      const { publicKey } = await data.json();
+      console.log(publicKey, registration)
+      const sub = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(
+          publicKey
+        ),
+      })
+      setSubscription(sub)
+      const serializedSub = JSON.parse(JSON.stringify(sub))
+      await subscribeUser(serializedSub)
+    } catch (error) {
+    }
+
   }
- 
+
   async function unsubscribeFromPush() {
     await subscription?.unsubscribe()
     setSubscription(null)
     await unsubscribeUser()
   }
- 
+
   async function sendTestNotification() {
     if (subscription) {
       await sendNotification(message)
       setMessage('')
     }
   }
- 
-  if (!isSupported) {
-    return <p>Push notifications are not supported in this browser.</p>
-  }
- 
+
+
+
   return (
     <div>
       {subscription ? (
         <>
-          <button onClick={unsubscribeFromPush}>Desuscribirse</button>
+          <button className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200" onClick={unsubscribeFromPush}>Desuscribirse</button>
           {/* <input
             type="text"
             placeholder="Enter notification message"
@@ -86,7 +88,7 @@ export default function PushNotificationManager() {
         </>
       ) : (
         <>
-          <button onClick={subscribeToPush}>Subscribirse</button>
+          <button className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200" onClick={subscribeToPush}>Subscribirse</button>
         </>
       )}
     </div>
