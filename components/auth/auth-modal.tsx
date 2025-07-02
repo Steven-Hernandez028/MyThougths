@@ -11,7 +11,7 @@ interface AuthModalProps {
   IsClosingOutside ?: boolean
 }
 
-export function AuthModal({ isOpen, onClose, defaultMode = "register", IsClosingOutside = true }: AuthModalProps) {
+export function AuthModal({ isOpen, onClose, defaultMode = "login", IsClosingOutside = true }: AuthModalProps) {
   const [mode, setMode] = useState<"login" | "register">(defaultMode)
   
 

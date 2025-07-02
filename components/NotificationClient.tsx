@@ -11,22 +11,17 @@ export default function PushNotificationManager() {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       registerServiceWorker()
     }
-    TryToGetSubscriptionFromUser();
-
+TryToGetSubscriptionFromUser();
   }, [])
 
   const TryToGetSubscriptionFromUser = async () => {
     try {
 
-      const response = await fetch("/api/auth/me", { credentials: 'include' })
-      if (response.ok) {
-        const data = await response.json();
-        if (data.susbcription && data.susbcription !== null) {
-          const susbscription = await JSON.parse(data.susbcription) as PushSubscription;
-          setSubscription(susbscription)
-        }
+      const registration = await navigator.serviceWorker.ready;
+      const sub = await registration.pushManager.getSubscription();
+      if (sub) {
+        setSubscription(sub);
       }
-
 
 
     } catch (error) {
@@ -121,7 +116,7 @@ export default function PushNotificationManager() {
       {subscription ? (
         <>
           <button className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200" onClick={unsubscribeFromPush}>Desuscribirse</button>
-        
+
         </>
       ) : (
         <>

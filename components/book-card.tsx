@@ -17,6 +17,7 @@ export function BookCard({ book, index }: BookCardProps) {
   const [readingProgress, setReadingProgress] = useState<number>(0)
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [isNotificationActive, setIsNotificationActive] = useState(false) // Estado para la campanita
 
   useEffect(() => {
     const progress = getReadingProgress(book.id)
@@ -40,6 +41,14 @@ export function BookCard({ book, index }: BookCardProps) {
     }
   }
 
+  const handleBellClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsNotificationActive(!isNotificationActive)
+    if (navigator.vibrate) {
+      navigator.vibrate(30)
+    }
+  }
+
   const isNew = isBookNew(book.publishedDate?.toString())
 
   return (
@@ -57,7 +66,6 @@ export function BookCard({ book, index }: BookCardProps) {
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-      //  onClick={handleClick}
         onKeyDown={handleKeyDown}
         tabIndex={0}
         role="button"
@@ -69,6 +77,46 @@ export function BookCard({ book, index }: BookCardProps) {
               NUEVO
             </div>
           )}
+
+          {/* Campanita de notificación */}
+          <div 
+            className={`
+              absolute top-3 ${isNew ? 'right-20' : 'right-3'} z-20 
+              cursor-pointer transition-all duration-300 ease-out
+              ${isHovered ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-4'}
+            `}
+            onClick={handleBellClick}
+            role="button"
+            aria-label={`${isNotificationActive ? 'Desactivar' : 'Activar'} notificaciones para ${book.title}`}
+          >
+            <div className="bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg hover:bg-white hover:scale-110 transition-all duration-200">
+              {isNotificationActive ? (
+                // Campanita filled (activa)
+                <svg 
+                  className="w-5 h-5 text-yellow-500" 
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 2C7.8 2 6 3.8 6 6c0 2.9-1.3 3.7-2.9 5.6-.3.4-.1 1.4.9 1.4h12c1 0 1.2-1 .9-1.4C15.3 9.7 14 8.9 14 6c0-2.2-1.8-4-4-4zm1 15h-2c0 1.1.9 2 2 2s2-.9 2-2z"/>
+                </svg>
+              ) : (
+                // Campanita unfilled (inactiva)
+                <svg 
+                  className="w-5 h-5 text-gray-600 hover:text-yellow-500 transition-colors" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" 
+                  />
+                </svg>
+              )}
+            </div>
+          </div>
 
           <div className="relative overflow-hidden">
             {!imageLoaded && !imageError && (
