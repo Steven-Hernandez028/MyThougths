@@ -68,12 +68,12 @@ class BookService {
 
     // Update chapters
     if (updateData.chapters) {
-      await this.updateBookChapters(book.id, updateData.chapters)
+      await this.updateBookChapters(book,book.id, updateData.chapters)
     }
 
     return await this.findBookById(book.id)
   }
-  private async updateBookChapters(bookId: string, chapters: Array<{ title: string; content: string }>) {
+  private async updateBookChapters(book : Book, bookId: string, chapters: Array<{ title: string; content: string }>) {
     const existingChapters = await this.chapterRepository.find({ where: { bookId } })
     const previousChapterCount = existingChapters.length
 
@@ -92,11 +92,11 @@ class BookService {
     }
 
     if (chapters.length > previousChapterCount) {
-      await this.sendNotificationsToSubscribers(bookId)
+      await this.sendNotificationsToSubscribers(book,bookId)
     }
   }
 
-private async sendNotificationsToSubscribers(bookId: string) {
+private async sendNotificationsToSubscribers(book: Book,bookId: string) {
   const dataSource = await getDataSource()
   const notificationRepo = dataSource.getRepository(UserBookNotification)
 
@@ -105,15 +105,17 @@ private async sendNotificationsToSubscribers(bookId: string) {
     relations: ["user"], 
   })
 
-  console.log(notifications)
 
   const payloads = notifications
     .filter(n => !!n.user.susbcription)
     .map(n => ({
       subscription: JSON.parse(n.user.susbcription),
       payload: {
-        title: "Nuevo capítulo disponible",
+        title: `Nuevo capítulo disponible en ${book.title}`,
         body: "Uno de los libros que sigues ha sido actualizado.",
+        data: {
+            url: `https://mythougths.up.railway.app/book/${bookId}`
+        },
         icon: "/icon.png",
       },
     }))

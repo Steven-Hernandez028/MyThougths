@@ -4,7 +4,7 @@ self.addEventListener('push', function (event) {
     const options = {
       body: data.body,
       icon: data.icon || '/icon.png',
-  //    badge: '/badge.png',
+      data: data.data, 
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
@@ -14,8 +14,32 @@ self.addEventListener('push', function (event) {
     event.waitUntil(self.registration.showNotification(data.title, options))
   }
 })
- 
-self.addEventListener('notificationclick', function (event) {
+
+self.addEventListener("notificationclick", function (event) {
   event.notification.close()
-  event.waitUntil(clients.openWindow('<https://your-website.com>'))
+
+  const targetUrl = event.notification.data?.url || "/"
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // Si ya hay una ventana abierta, redirige esa
+      for (const client of clientList) {
+        if ("focus" in client) {
+          client.navigate(targetUrl)
+          return client.focus()
+        }
+      }
+      // Si no hay ventanas abiertas, abre una nueva
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl)
+      }
+    })
+  )
 })
+self.addEventListener("install", (event) => {
+  self.skipWaiting(); // Fuerza la activación inmediata
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(clients.claim()); // Reclama el control de las pestañas actuales
+});
