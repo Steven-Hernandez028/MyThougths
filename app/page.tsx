@@ -9,17 +9,22 @@ import { AuthModal } from "@/components/auth/auth-modal"
 import { Book } from "@/lib/entities/Book"
 import { bookService } from "@/lib/services/bookService"
 import { useNotification } from "@/hooks/useNotification"
-import { PushNotificationButton } from "@/components/PushNotificationButton"
+import PushNotificationManager from "@/components/NotificationClient"
 
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedGenre, setSelectedGenre] = useState("all")
   const [isLoaded, setIsLoaded] = useState(false)
-  const { user, loading } = useAuth()
+  const { user, loading,logout } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { success, error } = useNotification()
 
   const [books, setBooks] = useState<Book[]>([])
+
+
+  useEffect(()=>{
+    if(user)
+    setShowAuthModal(false)
+  },[user])
+
 
   // Load books
   const loadBooks = async () => {
@@ -35,24 +40,16 @@ export default function HomePage() {
   }
   const publishedBooks = books.filter((book) => book.status === "published")
 
-  const filteredBooks = publishedBooks.filter((book) => {
-    const matchesSearch =
-      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesGenre = selectedGenre === "all" || book.genre === selectedGenre
-    return matchesSearch && matchesGenre
-  })
-
-  const genres = ["all", ...Array.from(new Set(publishedBooks.map((book) => book.genre)))]
+  const filteredBooks = publishedBooks;
 
   useEffect(() => {
     loadBooks();
   }, [])
 
- useEffect(() => {
-  if(loading) return
+  useEffect(() => {
+    if (loading) return
 
-  setShowAuthModal(false)
+    setShowAuthModal(false)
   }, [])
   if (loading) {
     return (
@@ -72,10 +69,20 @@ export default function HomePage() {
             <div className="flex items-center justify-between ">
               <h1 className="text-3xl font-light text-stone-800 tracking-wide animate-fade-in-left">Bienvenido</h1>
               <div className="flex items-center gap-4">
-                <PushNotificationButton/>
                 {user ? (
                   <>
-                    <span className="text-sm text-stone-600">Welcome, {user.firstName}</span>
+                    <PushNotificationManager />
+                    <span className="text-sm text-stone-600">Hola {user.firstName}</span>
+                    {
+                      !user.isAdmin && (
+                        <button
+                          onClick={logout}
+                          className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200"
+                        >
+                          Cerrar sesión
+                        </button>
+                      )
+                    }
                     {user.isAdmin && (
                       <a
                         href="/admin"
@@ -111,7 +118,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          {filteredBooks.length === 0 && (
+          {filteredBooks.length  === 0 && !isLoaded && (
             <div className="text-center py-16 animate-fade-in">
               <p className="text-stone-500 text-lg">No books found matching your criteria.</p>
             </div>

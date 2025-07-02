@@ -1,4 +1,3 @@
-// app/admin/page.tsx
 "use client"
 
 import React, { useEffect, useState } from "react"
@@ -13,7 +12,6 @@ import BookForm from "@/components/admin/BookForm"
 import BookGrid from "@/components/admin/BookGrid"
 import LoginForm from "@/components/admin/LoginForm"
 import LoadingSpinner from "@/components/ui/LoadingSpinner"
-import { AuthModal } from "@/components/auth/auth-modal"
 
 export default function AdminPage() {
   const { user, loading: authLoading, logout } = useAuth()
