@@ -3,18 +3,37 @@ import { sendNotification, subscribeUser, unsubscribeUser } from "@/app/actions"
 import { useEffect, useState } from "react"
 
 export default function PushNotificationManager() {
-  const [isSupported, setIsSupported] = useState(false)
   const [subscription, setSubscription] = useState<PushSubscription | null>(
     null
   )
-  const [message, setMessage] = useState('')
 
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
-      setIsSupported(true)
       registerServiceWorker()
     }
+    TryToGetSubscriptionFromUser();
+
   }, [])
+
+  const TryToGetSubscriptionFromUser = async () => {
+    try {
+
+      const response = await fetch("/api/auth/me", { credentials: 'include' })
+      if (response.ok) {
+        const data = await response.json();
+        if (data.susbcription && data.susbcription !== null) {
+          const susbscription = await JSON.parse(data.susbcription) as PushSubscription;
+          setSubscription(susbscription)
+        }
+      }
+
+
+
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
 
   async function registerServiceWorker() {
     const registration = await navigator.serviceWorker.register('/custom-sw.js', {
@@ -51,25 +70,50 @@ export default function PushNotificationManager() {
       })
       setSubscription(sub)
       const serializedSub = JSON.parse(JSON.stringify(sub))
-      console.log(serializedSub)
-      await subscribeUser(serializedSub)
+      await SaveSuscriptionByUser(serializedSub)
+
     } catch (error) {
     }
 
   }
 
+  async function SaveSuscriptionByUser(payload: string) {
+    try {
+      await fetch("/api/notifications", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ payload }),
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  async function RemoveSuscriptionFromUser() {
+    try {
+      await fetch("/api/notifications", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ IsRemoved: 1 }),
+      })
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   async function unsubscribeFromPush() {
     await subscription?.unsubscribe()
     setSubscription(null)
-    await unsubscribeUser()
+    await RemoveSuscriptionFromUser()
   }
 
-  async function sendTestNotification() {
-    if (subscription) {
-      await sendNotification(message)
-      setMessage('')
-    }
-  }
+
 
 
 
@@ -78,14 +122,7 @@ export default function PushNotificationManager() {
       {subscription ? (
         <>
           <button className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200" onClick={unsubscribeFromPush}>Desuscribirse</button>
-          {/* <input
-            type="text"
-            placeholder="Enter notification message"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          /> */}
-          {/* <button onClick={sendTestNotification}>Send Test</button>
-  */}
+     
         </>
       ) : (
         <>

@@ -40,7 +40,8 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date
-
+  @Column("text")
+  susbcription: string;
 
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`
