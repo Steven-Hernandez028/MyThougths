@@ -1,4 +1,14 @@
+import createPWA from 'next-pwa';
+
 /** @type {import('next').NextConfig} */
+const withPWA = createPWA({
+  dest: 'public',
+    customWorkerDir: 'custom-sw.js', 
+  register: true,
+  skipWaiting: true,
+  disable: process.env.NODE_ENV === 'development', // evita usar PWA en desarrollo
+});
+
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -15,11 +25,9 @@ const nextConfig = {
   env: {
     DATABASE_URL: process.env.DATABASE_URL,
   },
-  
-  webpack: (config, { isServer }) => {
 
+  webpack: (config, { isServer }) => {
     if (isServer) {
-      // Ignorar las dependencias opcionales de TypeORM que no uses
       config.externals.push({
         'utf-8-validate': 'commonjs utf-8-validate',
         'bufferutil': 'commonjs bufferutil',
@@ -42,7 +50,6 @@ const nextConfig = {
         '@google-cloud/spanner': 'commonjs @google-cloud/spanner',
       });
 
-      // Suprimir advertencias específicas de TypeORM
       config.module.parser = {
         ...config.module.parser,
         javascript: {
@@ -50,41 +57,19 @@ const nextConfig = {
           commonjsMagicComments: true,
         },
       };
+
       config.infrastructureLogging = {
         level: 'log',
-      }
+      };
+
       config.resolve.alias = {
         ...(config.resolve.alias || {}),
-        'react-native-sqlite-storage': false
+        'react-native-sqlite-storage': false,
       };
     }
 
     return config;
   },
-}
+};
 
-//  webpack: config => {
-//     /**
-//      * These packages need to be added as external, else Oracle DB will try to load them due to a
-//      * Webpack bug.
-//      *
-//      * See these two issues for more information:
-//      * - https://github.com/oracle/node-oracledb/issues/1688
-//      * - https://github.com/oracle/node-oracledb/issues/1691
-//      **/
-//     config.externals.push(
-//       ...[
-//         "@azure/app-configuration",
-//         "@azure/identity",
-//         "@azure/keyvault-secrets",
-//         "oci-common",
-//         "oci-objectstorage",
-//         "oci-secrets",
-//         "oracledb"
-//       ],
-//     )
-
-//     return config
-//   },
-
-export default nextConfig
+export default withPWA(nextConfig);
