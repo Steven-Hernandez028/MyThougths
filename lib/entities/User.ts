@@ -2,6 +2,7 @@ import {
   Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany
 } from "typeorm"
 import type { Relation } from "typeorm"
+import { UserBookNotification } from "./UserBookNotification"
 
 export enum UserRole {
   USER = "user",
@@ -40,7 +41,10 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date
-
+  @Column("text")
+  susbcription: string;
+  @OneToMany(() => UserBookNotification, (ubn) => ubn.user)
+  bookNotifications: Relation<UserBookNotification>[]
 
   get fullName(): string {
     return `${this.firstName} ${this.lastName}`

@@ -2,8 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { getDataSource } from "@/lib/db/data-source"
 import { Book, BookStatus } from "@/lib/entities/Book"
 import { Chapter } from "@/lib/entities/Chapter"
-import { requireAdmin, getAuthenticatedUser } from "@/lib/auth/middleware"
-import { Repository } from "typeorm"
+import { getAuthenticatedUser } from "@/lib/auth/middleware"
+import { In, Repository } from "typeorm"
+import { UserBookNotification } from "@/lib/entities/UserBookNotification"
 
 interface BookUpdateData {
   title: string
@@ -67,14 +68,15 @@ class BookService {
 
     // Update chapters
     if (updateData.chapters) {
-      await this.updateBookChapters(book.id, updateData.chapters)
+      await this.updateBookChapters(book,book.id, updateData.chapters)
     }
 
     return await this.findBookById(book.id)
   }
+  private async updateBookChapters(book : Book, bookId: string, chapters: Array<{ title: string; content: string }>) {
+    const existingChapters = await this.chapterRepository.find({ where: { bookId } })
+    const previousChapterCount = existingChapters.length
 
-  private async updateBookChapters(bookId: string, chapters: Array<{ title: string; content: string }>) {
-    // Delete existing chapters
     await this.chapterRepository.delete({ bookId })
 
     if (chapters.length > 0) {
@@ -88,7 +90,40 @@ class BookService {
       )
       await this.chapterRepository.save(chapterEntities)
     }
+
+    if (chapters.length > previousChapterCount) {
+      await this.sendNotificationsToSubscribers(book,bookId)
+    }
   }
+
+private async sendNotificationsToSubscribers(book: Book,bookId: string) {
+  const dataSource = await getDataSource()
+  const notificationRepo = dataSource.getRepository(UserBookNotification)
+
+  const notifications = await notificationRepo.find({
+    where: { book_id: bookId, receiveNotifications: true },
+    relations: ["user"], 
+  })
+
+
+  const payloads = notifications
+    .filter(n => !!n.user.susbcription)
+    .map(n => ({
+      subscription: JSON.parse(n.user.susbcription),
+      payload: {
+        title: `Nuevo capítulo disponible en ${book.title}`,
+        body: "Uno de los libros que sigues ha sido actualizado.",
+        data: {
+            url: `https://mythougths.up.railway.app/book/${bookId}`
+        },
+        icon: "/icon.png",
+      },
+    }))
+
+  const { sendBulkNotifications } = await import('@/app/actions')
+  await sendBulkNotifications(payloads)
+}
+
 
   async deleteBook(id: string): Promise<boolean> {
     const book = await this.bookRepository.findOne({ where: { id } })
@@ -126,7 +161,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const bookService = await createBookService()
     const user = await getAuthenticatedUser(request)
-    
+
     const book = await bookService.findBookById(params.id)
     if (!book) {
       return createErrorResponse("Book not found", 404)
@@ -138,7 +173,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     bookService.sortChaptersByOrder(book)
     return createSuccessResponse(book)
-    
+
   } catch (error) {
     console.error("Get book error:", error)
     return createErrorResponse("Internal server error", 500)
@@ -155,7 +190,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const updateData: BookUpdateData = await request.json()
     const bookService = await createBookService()
-    
+
     const book = await bookService.findBookById(params.id)
     if (!book) {
       return createErrorResponse("Book not found", 404)
@@ -163,7 +198,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     const updatedBook = await bookService.updateBook(book, updateData)
     return createSuccessResponse(updatedBook)
-    
+
   } catch (error) {
     console.error("Update book error:", error)
     return createErrorResponse("Internal server error", 500)
@@ -180,13 +215,13 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     const bookService = await createBookService()
     const deleted = await bookService.deleteBook(params.id)
-    
+
     if (!deleted) {
       return createErrorResponse("Book not found", 404)
     }
 
     return createSuccessResponse({ message: "Book deleted successfully" })
-    
+
   } catch (error) {
     console.error("Delete book error:", error)
     return createErrorResponse("Internal server error", 500)

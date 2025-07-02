@@ -8,6 +8,7 @@ export interface Book {
   description: string
   coverImage: string
   chapters: Chapter[]
+  notification : boolean;
   createdAt: Date
   status: "draft" | "published"
   publishedDate?: Date

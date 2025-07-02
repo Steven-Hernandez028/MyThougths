@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Return user data (excluding password)
+
     const { password: _, ...userWithoutPassword } = user
     const userData = {
       ...userWithoutPassword,

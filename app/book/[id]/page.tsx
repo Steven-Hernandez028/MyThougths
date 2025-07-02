@@ -41,7 +41,6 @@ export default function BookPage() {
       const book = fetchedBooks.find((b) => b.id === params.id) as Book
       const orderedBooks = book.chapters.sort((a, b) => a.order - b.order)
       book.chapters = orderedBooks;
-      console.log(book)
 
       setBook(book)
     } catch (err) {

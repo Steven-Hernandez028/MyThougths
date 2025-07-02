@@ -6,20 +6,49 @@ import { BookCard } from "@/components/book-card"
 import { SearchBar } from "@/components/search-bar"
 import { useAuth } from "@/hooks/useAuth"
 import { AuthModal } from "@/components/auth/auth-modal"
-import { Book } from "@/lib/entities/Book"
 import { bookService } from "@/lib/services/bookService"
 import { useNotification } from "@/hooks/useNotification"
-import { PushNotificationButton } from "@/components/PushNotificationButton"
+import PushNotificationManager from "@/components/NotificationClient"
+import { Book } from "@/lib/types"
 
 export default function HomePage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedGenre, setSelectedGenre] = useState("all")
   const [isLoaded, setIsLoaded] = useState(false)
-  const { user, loading } = useAuth()
+  const { user, loading, logout } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { success, error } = useNotification()
+  const [notifiedBookIds, setNotifiedBookIds] = useState<Set<string>>(new Set());
 
   const [books, setBooks] = useState<Book[]>([])
+
+
+  useEffect(() => {
+    if (user) {
+      setShowAuthModal(false)
+
+    }
+  }, [user])
+
+  useEffect(() => {
+    if (user && books?.length > 0) {
+      console.log(user,books)
+      loadNotifiedBooks();
+
+    }
+  }, [user,books])
+  const loadNotifiedBooks = async () => {
+    try {
+      const res = await fetch("/api/books/notifications", { credentials: "include" });
+      if (!res.ok) return;
+      const data: { id: string }[] = await res.json();
+
+      if (data && data?.length > 0) {
+        const ids = new Set(data.map(book => book.id));
+        setNotifiedBookIds(ids)
+      }
+    } catch (err) {
+      console.error("Error loading notified books", err);
+    }
+  }
 
   // Load books
   const loadBooks = async () => {
@@ -35,24 +64,16 @@ export default function HomePage() {
   }
   const publishedBooks = books.filter((book) => book.status === "published")
 
-  const filteredBooks = publishedBooks.filter((book) => {
-    const matchesSearch =
-      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      book.author.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesGenre = selectedGenre === "all" || book.genre === selectedGenre
-    return matchesSearch && matchesGenre
-  })
-
-  const genres = ["all", ...Array.from(new Set(publishedBooks.map((book) => book.genre)))]
+  const filteredBooks = publishedBooks;
 
   useEffect(() => {
     loadBooks();
   }, [])
 
- useEffect(() => {
-  if(loading) return
+  useEffect(() => {
+    if (loading) return
 
-  setShowAuthModal(false)
+    setShowAuthModal(false)
   }, [])
   if (loading) {
     return (
@@ -70,12 +91,24 @@ export default function HomePage() {
         >
           <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="flex items-center justify-between ">
-              <h1 className="text-3xl font-light text-stone-800 tracking-wide animate-fade-in-left">Bienvenido</h1>
+
+              <h1 className="text-xl   text-stone-800  tracking-wide animate-fade-in-left">Hola {user?.firstName}</h1>
               <div className="flex items-center gap-4">
-                <PushNotificationButton/>
                 {user ? (
                   <>
-                    <span className="text-sm text-stone-600">Welcome, {user.firstName}</span>
+                    {
+                      !user.isAdmin && (<>
+                        <PushNotificationManager />
+                        <button
+                          onClick={logout}
+                          className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200"
+                        >
+                          Cerrar sesión
+                        </button>
+
+                      </>
+                      )
+                    }
                     {user.isAdmin && (
                       <a
                         href="/admin"
@@ -104,14 +137,14 @@ export default function HomePage() {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 py-8">
+        <main className= "max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
             {filteredBooks.map((book, index) => (
-              <BookCard key={book.id} book={book} index={index} />
+              <BookCard key={book.id} book={book} index={index} isNotified={notifiedBookIds.has(book.id)} />
             ))}
           </div>
 
-          {filteredBooks.length === 0 && (
+          {filteredBooks.length === 0 && !isLoaded && (
             <div className="text-center py-16 animate-fade-in">
               <p className="text-stone-500 text-lg">No books found matching your criteria.</p>
             </div>

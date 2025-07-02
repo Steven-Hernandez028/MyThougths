@@ -1,4 +1,3 @@
-// app/admin/page.tsx
 "use client"
 
 import React, { useEffect, useState } from "react"
@@ -13,7 +12,6 @@ import BookForm from "@/components/admin/BookForm"
 import BookGrid from "@/components/admin/BookGrid"
 import LoginForm from "@/components/admin/LoginForm"
 import LoadingSpinner from "@/components/ui/LoadingSpinner"
-import { AuthModal } from "@/components/auth/auth-modal"
 
 export default function AdminPage() {
   const { user, loading: authLoading, logout } = useAuth()
@@ -76,7 +74,6 @@ export default function AdminPage() {
         ))
         success("Book updated successfully")
       } else {
-        console.log('Creating book with data:', data)
         const newBook = await bookService.createBook(data as BookCreateData)
         setBooks(prev => [newBook, ...prev])
         success("Book created successfully")

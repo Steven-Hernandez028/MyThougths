@@ -43,7 +43,7 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
         <div className="mx-auto w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center mb-4">
           <LogIn className="w-6 h-6 text-stone-600" />
         </div>
-        <CardTitle className="text-2xl font-light">Bienvenido Administrador</CardTitle>
+        <CardTitle className="text-2xl font-light">Bienvenido</CardTitle>
         <p className="text-stone-600">Entra en tu cuenta</p>
       </CardHeader>
       <CardContent>
@@ -97,14 +97,14 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
           </Button>
 
           <div className="text-center">
-            {/* <button
+          <button
               type="button"
               onClick={onToggleMode}
               className="text-sm text-stone-600 hover:text-stone-800 transition-colors"
               disabled={isLoading}
             >
               Don't have an account? Sign up
-            </button> */}
+            </button>
           </div>
         </form>
       </CardContent>

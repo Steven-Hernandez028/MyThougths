@@ -9,14 +9,18 @@ import { getReadingProgress, isBookNew } from "@/lib/reading-progress"
 interface BookCardProps {
   book: Book
   index: number
+  isNotified: boolean
+
 }
 
-export function BookCard({ book, index }: BookCardProps) {
+export function BookCard({ book, index, isNotified }: BookCardProps) {
   const router = useRouter()
   const [isHovered, setIsHovered] = useState(false)
   const [readingProgress, setReadingProgress] = useState<number>(0)
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
+  const [isNotificationActive, setIsNotificationActive] = useState(isNotified) // Estado para la campanita
+  const [isUpdatingNotification, setIsUpdatingNotification] = useState(false) // Loading state
 
   useEffect(() => {
     const progress = getReadingProgress(book.id)
@@ -25,6 +29,15 @@ export function BookCard({ book, index }: BookCardProps) {
       setReadingProgress(progressPercentage)
     }
   }, [book.id, book.chapters.length])
+
+  useEffect(() => {
+    setIsUpdatingNotification(true)
+    setIsNotificationActive(isNotified)
+    setIsUpdatingNotification(false)
+  }, [isNotified])
+
+
+
 
   const handleClick = () => {
     if (navigator.vibrate) {
@@ -40,6 +53,33 @@ export function BookCard({ book, index }: BookCardProps) {
     }
   }
 
+  const handleBellClick = async (e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (isUpdatingNotification) return
+
+    setIsUpdatingNotification(true)
+
+    try {
+      const response = await fetch('/api/books/notifications', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ bookId: book.id }),
+      })
+
+      if (response.ok) {
+        setIsNotificationActive((prev) => !prev)
+        if (navigator.vibrate) navigator.vibrate(30)
+      } else {
+        console.error('Error al actualizar notificación:', response.statusText)
+      }
+    } catch (error) {
+      console.error('Error en la llamada al endpoint:', error)
+    } finally {
+      setIsUpdatingNotification(false)
+    }
+  }
   const isNew = isBookNew(book.publishedDate?.toString())
 
   return (
@@ -57,7 +97,6 @@ export function BookCard({ book, index }: BookCardProps) {
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-      //  onClick={handleClick}
         onKeyDown={handleKeyDown}
         tabIndex={0}
         role="button"
@@ -70,13 +109,56 @@ export function BookCard({ book, index }: BookCardProps) {
             </div>
           )}
 
+          <div
+            className={`
+              absolute top-3 ${isNew ? 'right-20' : 'right-3'} z-20 
+              cursor-pointer transition-all duration-300 ease-out
+              ${isHovered ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-4'}
+              ${isUpdatingNotification ? 'pointer-events-none' : ''}
+            `}
+            onClick={handleBellClick}
+            role="button"
+            aria-label={`${isNotificationActive ? 'Desactivar' : 'Activar'} notificaciones para ${book.title}`}
+          >
+            <div className={`
+              bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg transition-all duration-200
+              ${isUpdatingNotification ? 'opacity-50' : 'hover:bg-white hover:scale-110'}
+            `}>
+              {isUpdatingNotification ? (
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-blue-500"></div>
+              ) : isNotificationActive ? (
+                <svg
+                  className="w-5 h-5 text-yellow-500"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 2C7.8 2 6 3.8 6 6c0 2.9-1.3 3.7-2.9 5.6-.3.4-.1 1.4.9 1.4h12c1 0 1.2-1 .9-1.4C15.3 9.7 14 8.9 14 6c0-2.2-1.8-4-4-4zm1 15h-2c0 1.1.9 2 2 2s2-.9 2-2z" />
+                </svg>
+              ) : (
+                <svg
+                  className="w-5 h-5 text-gray-600 hover:text-yellow-500 transition-colors"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  />
+                </svg>
+              )}
+            </div>
+          </div>
+
           <div className="relative overflow-hidden">
             {!imageLoaded && !imageError && (
               <div className="absolute inset-0 flex items-center justify-center bg-gray-100 min-h-[200px]">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-blue-500"></div>
               </div>
             )}
-            
+
             {!imageError ? (
               <img
                 src={book.coverImage || "/placeholder.svg"}
@@ -116,7 +198,7 @@ export function BookCard({ book, index }: BookCardProps) {
                 <h3 className="text-xl font-bold mb-2 line-clamp-2 leading-tight">
                   {book.title}
                 </h3>
-                
+
                 <div className="flex items-center justify-between mb-3">
                   <p className="text-white/90 text-sm font-medium">
                     por {book.author}
@@ -157,7 +239,7 @@ export function BookCard({ book, index }: BookCardProps) {
                     {book.chapters.length} Capítulo{book.chapters.length !== 1 ? "s" : ""}
                   </span>
                 </div>
-                
+
                 <div onClick={handleClick} className="flex items-center text-white font-medium bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full hover:bg-white/30 transition-colors">
                   <span className="mr-2 text-sm">
                     {readingProgress > 0 ? "Continuar" : "Leer ahora"}

@@ -39,7 +39,6 @@ export async function GET(request: NextRequest) {
 // POST /api/books - Create new book (admin only)
 export async function POST  (request: NextRequest)  {
   try {
-    console.log("Creating book...")
     const { title, author, genre, description, coverImage, status, chapters } = await request.json()
     if (!title || !author || !genre || !chapters || chapters.length === 0) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })

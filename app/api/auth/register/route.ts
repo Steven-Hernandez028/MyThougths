@@ -20,13 +20,11 @@ export async function POST(request: NextRequest) {
     const dataSource = await getDataSource()
     const userRepository = dataSource.getRepository(User)
 
-    // Check if user already exists
     const existingUser = await userRepository.findOne({ where: { email } })
     if (existingUser) {
       return NextResponse.json({ error: "User already exists" }, { status: 400 })
     }
 
-    // Create new user
     const hashedPassword = await hashPassword(password)
     const user = userRepository.create({
       email,

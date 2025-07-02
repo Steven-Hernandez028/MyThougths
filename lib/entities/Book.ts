@@ -4,6 +4,7 @@ import {
 import { Chapter } from "./Chapter"
 
 import type { Relation } from "typeorm"
+import { UserBookNotification } from "./UserBookNotification"
 
 export enum BookStatus {
   DRAFT = "draft",
@@ -27,6 +28,8 @@ export class Book {
   @Column("text")
   description: string
 
+
+
   @Column({ nullable: true })
   coverImage: string
 
@@ -49,6 +52,8 @@ export class Book {
   @OneToMany(() => Chapter, (chapter) => chapter.book, { cascade: true })
   chapters: Relation<Chapter>[]
 
+  @OneToMany(() => UserBookNotification, (ubn) => ubn.book)
+  userNotifications: Relation<UserBookNotification>[]
 
 
   get isPublished(): boolean {
