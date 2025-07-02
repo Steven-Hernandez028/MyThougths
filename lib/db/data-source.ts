@@ -3,13 +3,14 @@ import { DataSource } from "typeorm"
 import { User } from "../entities/User"
 import { Chapter } from "../entities/Chapter"
 import { Book } from "../entities/Book"
+import { UserBookNotification } from "../entities/UserBookNotification"
 
 export const AppDataSource = new DataSource({
   type: "postgres",
   url: process.env.DATABASE_URL!,
   synchronize: false, // Set to false in production
   logging: true,
-  entities: [Book, Chapter, User], // ✅ Incluye todos aquí
+  entities: [Book, Chapter, User,UserBookNotification], // ✅ Incluye todos aquí
   migrations: [],
   subscribers: [],
 })

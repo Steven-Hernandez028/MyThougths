@@ -56,7 +56,6 @@ TryToGetSubscriptionFromUser();
       const registration = await navigator.serviceWorker.ready
       const data = await fetch("/api/notifications")
       const { publicKey } = await data.json();
-      console.log(publicKey, registration)
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(

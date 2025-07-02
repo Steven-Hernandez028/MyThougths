@@ -6,25 +6,49 @@ import { BookCard } from "@/components/book-card"
 import { SearchBar } from "@/components/search-bar"
 import { useAuth } from "@/hooks/useAuth"
 import { AuthModal } from "@/components/auth/auth-modal"
-import { Book } from "@/lib/entities/Book"
 import { bookService } from "@/lib/services/bookService"
 import { useNotification } from "@/hooks/useNotification"
 import PushNotificationManager from "@/components/NotificationClient"
+import { Book } from "@/lib/types"
 
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false)
   const { user, loading, logout } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { success, error } = useNotification()
+  const [notifiedBookIds, setNotifiedBookIds] = useState<Set<string>>(new Set());
 
   const [books, setBooks] = useState<Book[]>([])
 
 
   useEffect(() => {
-    if (user)
+    if (user) {
       setShowAuthModal(false)
+
+    }
   }, [user])
 
+  useEffect(() => {
+    if (user && books?.length > 0) {
+      console.log(user,books)
+      loadNotifiedBooks();
+
+    }
+  }, [user,books])
+  const loadNotifiedBooks = async () => {
+    try {
+      const res = await fetch("/api/books/notifications", { credentials: "include" });
+      if (!res.ok) return;
+      const data: { id: string }[] = await res.json();
+
+      if (data && data?.length > 0) {
+        const ids = new Set(data.map(book => book.id));
+        setNotifiedBookIds(ids)
+      }
+    } catch (err) {
+      console.error("Error loading notified books", err);
+    }
+  }
 
   // Load books
   const loadBooks = async () => {
@@ -113,10 +137,10 @@ export default function HomePage() {
           </div>
         </header>
 
-        <main className="max-w-7xl mx-auto px-4 py-8">
+        <main className= "max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
             {filteredBooks.map((book, index) => (
-              <BookCard key={book.id} book={book} index={index} />
+              <BookCard key={book.id} book={book} index={index} isNotified={notifiedBookIds.has(book.id)} />
             ))}
           </div>
 

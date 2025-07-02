@@ -1,6 +1,6 @@
 // lib/services/bookService.ts
 import { Book, BookStatus } from "@/lib/entities/Book"
-
+import { Book as BookDTO} from "@/lib/types"
 export interface BookCreateData {
   title: string
   author: string
@@ -38,8 +38,8 @@ class BookService {
     return response.json()
   }
 
-  async getBooks(): Promise<Book[]> {
-    return this.request<Book[]>('/api/books')
+  async getBooks(): Promise<BookDTO[]> {
+    return this.request<BookDTO[]>('/api/books')
   }
 
   async getBook(id: string): Promise<Book> {
