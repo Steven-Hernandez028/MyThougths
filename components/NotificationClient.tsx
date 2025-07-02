@@ -116,13 +116,12 @@ export default function PushNotificationManager() {
 
 
 
-
   return (
     <div>
       {subscription ? (
         <>
           <button className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200" onClick={unsubscribeFromPush}>Desuscribirse</button>
-     
+        
         </>
       ) : (
         <>

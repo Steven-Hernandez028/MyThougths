@@ -67,14 +67,14 @@ export default function HomePage() {
         >
           <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="flex items-center justify-between ">
-              <h1 className="text-3xl font-light text-stone-800 tracking-wide animate-fade-in-left">Bienvenido</h1>
+
+              <h1 className="text-xl   text-stone-800  tracking-wide animate-fade-in-left">Hola {user?.firstName}</h1>
               <div className="flex items-center gap-4">
                 {user ? (
                   <>
-                    <span className="text-sm text-stone-600">Hola {user.firstName}</span>
                     {
                       !user.isAdmin && (<>
-                          <PushNotificationManager />
+                        <PushNotificationManager />
                         <button
                           onClick={logout}
                           className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200"
