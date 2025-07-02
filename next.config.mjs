@@ -3,6 +3,7 @@ import createPWA from 'next-pwa';
 /** @type {import('next').NextConfig} */
 const withPWA = createPWA({
   dest: 'public',
+    customWorkerDir: 'custom-sw.js', 
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development', // evita usar PWA en desarrollo

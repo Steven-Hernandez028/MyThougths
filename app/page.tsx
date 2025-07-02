@@ -9,6 +9,7 @@ import { AuthModal } from "@/components/auth/auth-modal"
 import { Book } from "@/lib/entities/Book"
 import { bookService } from "@/lib/services/bookService"
 import { useNotification } from "@/hooks/useNotification"
+import { PushNotificationButton } from "@/components/PushNotificationButton"
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -71,6 +72,7 @@ export default function HomePage() {
             <div className="flex items-center justify-between ">
               <h1 className="text-3xl font-light text-stone-800 tracking-wide animate-fade-in-left">Bienvenido</h1>
               <div className="flex items-center gap-4">
+                <PushNotificationButton/>
                 {user ? (
                   <>
                     <span className="text-sm text-stone-600">Welcome, {user.firstName}</span>
