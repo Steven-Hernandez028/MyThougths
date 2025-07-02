@@ -51,6 +51,7 @@ export default function PushNotificationManager() {
       })
       setSubscription(sub)
       const serializedSub = JSON.parse(JSON.stringify(sub))
+      console.log(serializedSub)
       await subscribeUser(serializedSub)
     } catch (error) {
     }

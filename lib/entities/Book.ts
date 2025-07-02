@@ -27,6 +27,9 @@ export class Book {
   @Column("text")
   description: string
 
+  @Column("text")
+  susbcription :string;
+
   @Column({ nullable: true })
   coverImage: string
 
