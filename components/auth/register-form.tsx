@@ -41,13 +41,13 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
     setError("")
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
+      setError("Las contraseñas no coinciden")
       setIsLoading(false)
       return
     }
 
     if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters")
+      setError("La contraseña debe tener al menos 6 caracteres")
       setIsLoading(false)
       return
     }
@@ -60,10 +60,11 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
     })
 
     if (!result.success) {
-      setError(result.error || "Registration failed")
+      setError(result.error || "Registro fallido")
     }
 
     setIsLoading(false)
+    onToggleMode()
   }
 
   return (
@@ -72,8 +73,8 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
         <div className="mx-auto w-12 h-12 bg-stone-100 rounded-full flex items-center justify-center mb-4">
           <UserPlus className="w-6 h-6 text-stone-600" />
         </div>
-        <CardTitle className="text-2xl font-light">Create Account</CardTitle>
-        <p className="text-stone-600">Join our reading community</p>
+        <CardTitle className="text-2xl font-light">Crear Cuenta</CardTitle>
+        <p className="text-stone-600">Únete a nuestra comunidad de lectores</p>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -81,7 +82,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="firstName">First Name</Label>
+              <Label htmlFor="firstName">Nombre</Label>
               <Input
                 id="firstName"
                 name="firstName"
@@ -94,7 +95,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
               />
             </div>
             <div>
-              <Label htmlFor="lastName">Last Name</Label>
+              <Label htmlFor="lastName">Apellido</Label>
               <Input
                 id="lastName"
                 name="lastName"
@@ -109,7 +110,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">Correo Electronico</Label>
             <Input
               id="email"
               name="email"
@@ -123,7 +124,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Contraseña</Label>
             <div className="relative">
               <Input
                 id="password"
@@ -131,7 +132,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="At least 6 characters"
+                placeholder="Almenos 6 caracteres"
                 required
                 disabled={isLoading}
               />
@@ -153,21 +154,21 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
           </div>
 
           <div>
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword">Confirma la Contraseña</Label>
             <Input
               id="confirmPassword"
               name="confirmPassword"
               type="password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              placeholder="Confirm your password"
+              placeholder="Confirma tu Contraseña"
               required
               disabled={isLoading}
             />
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Create Account"}
+            {isLoading ? "Creando Cuenta..." : "Crear Cuenta"}
           </Button>
 
           <div className="text-center">
@@ -177,7 +178,7 @@ export function RegisterForm({ onToggleMode }: RegisterFormProps) {
               className="text-sm text-stone-600 hover:text-stone-800 transition-colors"
               disabled={isLoading}
             >
-              Already have an account? Sign in
+              ¿Ya tienes una cuenta? Inicia sesión
             </button>
           </div>
         </form>

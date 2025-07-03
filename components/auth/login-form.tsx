@@ -98,13 +98,13 @@ export function LoginForm({ onToggleMode }: LoginFormProps) {
 
           <div className="text-center">
           <button
-              type="button"
-              onClick={onToggleMode}
-              className="text-sm text-stone-600 hover:text-stone-800 transition-colors"
-              disabled={isLoading}
-            >
-              Don't have an account? Sign up
-            </button>
+            type="button"
+            onClick={onToggleMode}
+            className="text-sm text-stone-600 hover:text-stone-800 transition-colors"
+            disabled={isLoading}
+          >
+            ¿No tienes una cuenta? Regístrate
+          </button>
           </div>
         </form>
       </CardContent>
