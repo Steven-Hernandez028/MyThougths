@@ -116,7 +116,7 @@ private async sendNotificationsToSubscribers(book: Book,bookId: string) {
         data: {
             url: `https://mythougths.up.railway.app/book/${bookId}`
         },
-        icon: "/icon.png",
+        icon: "/icon-192x192.png",
       },
     }))
 

@@ -8,7 +8,7 @@ export async function GET() {
         publicKey: process.env.VAPID_PUBLIC_KEY,
     });
 }
-export async function PUT(req: NextRequest) {
+export async function POST(req: NextRequest) {
     const { payload, IsRemoved } = await req.json();
 
     const dataSource = await getDataSource();

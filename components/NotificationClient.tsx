@@ -1,5 +1,4 @@
 "use client"
-import { sendNotification, subscribeUser, unsubscribeUser } from "@/app/actions"
 import { useEffect, useState } from "react"
 
 export default function PushNotificationManager() {
@@ -74,11 +73,11 @@ TryToGetSubscriptionFromUser();
   async function SaveSuscriptionByUser(payload: string) {
     try {
       await fetch("/api/notifications", {
-        method: "PUT",
+        method: 'POST',
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+
         body: JSON.stringify({ payload }),
       })
     } catch (e) {
@@ -89,11 +88,11 @@ TryToGetSubscriptionFromUser();
   async function RemoveSuscriptionFromUser() {
     try {
       await fetch("/api/notifications", {
-        method: "PUT",
+        method: 'POST',
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
+    
         body: JSON.stringify({ IsRemoved: 1 }),
       })
     } catch (e) {

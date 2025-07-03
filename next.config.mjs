@@ -33,7 +33,7 @@ const nextConfig = {
         ],
       },
       {
-        source: '/sw.js',
+        source: '/custom-sw.js',
         headers: [
           {
             key: 'Content-Type',
