@@ -22,7 +22,7 @@ export function AuthModal({ isOpen, onClose, defaultMode = "login", IsClosingOut
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={(IsClosingOutside? onClose : undefined)} />
       <div className="relative z-10 w-full max-w-md mx-4">
         {mode === "login" ? (
-          <LoginForm onToggleMode={() => setMode("register")} />
+          <LoginForm onToggleMode={() => setMode("register")}/>
         ) : (
           <RegisterForm onToggleMode={() => setMode("login")} />
         )}
