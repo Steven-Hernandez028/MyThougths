@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import type { Book } from "@/lib/types"
 import { ViewTransition } from "@/components/view-transition"
 import { getReadingProgress, isBookNew } from "@/lib/reading-progress"
+import { useAuth } from "@/hooks/useAuth"
 
 interface BookCardProps {
   book: Book
@@ -15,12 +16,13 @@ interface BookCardProps {
 
 export function BookCard({ book, index, isNotified }: BookCardProps) {
   const router = useRouter()
+  const { user } = useAuth();
   const [isHovered, setIsHovered] = useState(false)
   const [readingProgress, setReadingProgress] = useState<number>(0)
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
-  const [isNotificationActive, setIsNotificationActive] = useState(isNotified) // Estado para la campanita
-  const [isUpdatingNotification, setIsUpdatingNotification] = useState(false) // Loading state
+  const [isNotificationActive, setIsNotificationActive] = useState(isNotified) 
+  const [isUpdatingNotification, setIsUpdatingNotification] = useState(false) 
 
   useEffect(() => {
     const progress = getReadingProgress(book.id)
@@ -109,48 +111,52 @@ export function BookCard({ book, index, isNotified }: BookCardProps) {
             </div>
           )}
 
-          <div
-            className={`
+          {
+            user && (
+              <div
+                className={`
               absolute top-3 ${isNew ? 'right-20' : 'right-3'} z-20 
               cursor-pointer transition-all duration-300 ease-out
               ${isHovered ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-4'}
               ${isUpdatingNotification ? 'pointer-events-none' : ''}
             `}
-            onClick={handleBellClick}
-            role="button"
-            aria-label={`${isNotificationActive ? 'Desactivar' : 'Activar'} notificaciones para ${book.title}`}
-          >
-            <div className={`
+                onClick={handleBellClick}
+                role="button"
+                aria-label={`${isNotificationActive ? 'Desactivar' : 'Activar'} notificaciones para ${book.title}`}
+              >
+                <div className={`
               bg-white/90 backdrop-blur-sm p-2 rounded-full shadow-lg transition-all duration-200
               ${isUpdatingNotification ? 'opacity-50' : 'hover:bg-white hover:scale-110'}
             `}>
-              {isUpdatingNotification ? (
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-blue-500"></div>
-              ) : isNotificationActive ? (
-                <svg
-                  className="w-5 h-5 text-yellow-500"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M10 2C7.8 2 6 3.8 6 6c0 2.9-1.3 3.7-2.9 5.6-.3.4-.1 1.4.9 1.4h12c1 0 1.2-1 .9-1.4C15.3 9.7 14 8.9 14 6c0-2.2-1.8-4-4-4zm1 15h-2c0 1.1.9 2 2 2s2-.9 2-2z" />
-                </svg>
-              ) : (
-                <svg
-                  className="w-5 h-5 text-gray-600 hover:text-yellow-500 transition-colors"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                  />
-                </svg>
-              )}
-            </div>
-          </div>
+                  {isUpdatingNotification ? (
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-blue-500"></div>
+                  ) : isNotificationActive ? (
+                    <svg
+                      className="w-5 h-5 text-yellow-500"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M10 2C7.8 2 6 3.8 6 6c0 2.9-1.3 3.7-2.9 5.6-.3.4-.1 1.4.9 1.4h12c1 0 1.2-1 .9-1.4C15.3 9.7 14 8.9 14 6c0-2.2-1.8-4-4-4zm1 15h-2c0 1.1.9 2 2 2s2-.9 2-2z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-5 h-5 text-gray-600 hover:text-yellow-500 transition-colors"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                      />
+                    </svg>
+                  )}
+                </div>
+              </div>
+            )
+          }
 
           <div className="relative overflow-hidden">
             {!imageLoaded && !imageError && (
