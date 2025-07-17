@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import type { Book } from "@/lib/types"
 import { ViewTransition } from "@/components/view-transition"
@@ -11,18 +11,22 @@ interface BookCardProps {
   book: Book
   index: number
   isNotified: boolean
+  decreaseNumber: (value: number) => void
 
 }
 
-export function BookCard({ book, index, isNotified }: BookCardProps) {
+export function BookCard({ book, index, isNotified, decreaseNumber: AddNumber }: BookCardProps) {
   const router = useRouter()
   const { user } = useAuth();
   const [isHovered, setIsHovered] = useState(false)
   const [readingProgress, setReadingProgress] = useState<number>(0)
   const [imageLoaded, setImageLoaded] = useState(false)
   const [imageError, setImageError] = useState(false)
-  const [isNotificationActive, setIsNotificationActive] = useState(isNotified) 
-  const [isUpdatingNotification, setIsUpdatingNotification] = useState(false) 
+  const [isNotificationActive, setIsNotificationActive] = useState(isNotified)
+  const [isUpdatingNotification, setIsUpdatingNotification] = useState(false)
+  const isFirstRender = useRef(true)
+
+
 
   useEffect(() => {
     const progress = getReadingProgress(book.id)
@@ -37,8 +41,6 @@ export function BookCard({ book, index, isNotified }: BookCardProps) {
     setIsNotificationActive(isNotified)
     setIsUpdatingNotification(false)
   }, [isNotified])
-
-
 
 
   const handleClick = () => {
@@ -71,6 +73,9 @@ export function BookCard({ book, index, isNotified }: BookCardProps) {
       })
 
       if (response.ok) {
+
+        AddNumber(isNotificationActive ? 1 : -1);
+
         setIsNotificationActive((prev) => !prev)
         if (navigator.vibrate) navigator.vibrate(30)
       } else {

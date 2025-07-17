@@ -10,7 +10,7 @@ export default function PushNotificationManager() {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       registerServiceWorker()
     }
-TryToGetSubscriptionFromUser();
+    TryToGetSubscriptionFromUser();
   }, [])
 
   const TryToGetSubscriptionFromUser = async () => {
@@ -92,7 +92,7 @@ TryToGetSubscriptionFromUser();
         headers: {
           "Content-Type": "application/json",
         },
-    
+
         body: JSON.stringify({ IsRemoved: 1 }),
       })
     } catch (e) {

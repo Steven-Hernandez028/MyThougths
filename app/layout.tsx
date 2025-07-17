@@ -4,6 +4,7 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/hooks/useAuth"
 import Head from "next/head"; // ✅ Import necesario para etiquetas personalizadas
+import { PushNotificationProvider } from "@/lib/provider/PushNotificationContextType"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -31,7 +32,13 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
       </Head>
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <PushNotificationProvider>
+
+        <AuthProvider>
+          {children}
+
+        </AuthProvider>
+        </PushNotificationProvider>
       </body>
     </html>
   )

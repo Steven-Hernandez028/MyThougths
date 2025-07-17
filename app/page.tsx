@@ -3,13 +3,12 @@
 import { useState, useEffect } from "react"
 import { ViewTransition } from "@/components/view-transition"
 import { BookCard } from "@/components/book-card"
-import { SearchBar } from "@/components/search-bar"
 import { useAuth } from "@/hooks/useAuth"
 import { AuthModal } from "@/components/auth/auth-modal"
 import { bookService } from "@/lib/services/bookService"
 import { useNotification } from "@/hooks/useNotification"
-import PushNotificationManager from "@/components/NotificationClient"
 import { Book } from "@/lib/types"
+import { usePushNotification } from "@/lib/provider/PushNotificationContextType"
 
 export default function HomePage() {
   const [isLoaded, setIsLoaded] = useState(false)
@@ -17,24 +16,39 @@ export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { success, error } = useNotification()
   const [notifiedBookIds, setNotifiedBookIds] = useState<Set<string>>(new Set());
+  const { isSubscribed, subscribe, unsubscribe, isLoading: IsNotificationPushLoading, error: pushErrors } = usePushNotification()
 
   const [books, setBooks] = useState<Book[]>([])
+  const [bookNotified, setBookNotified] = useState<number>(0)
 
 
   useEffect(() => {
     if (user) {
       setShowAuthModal(false)
-
     }
   }, [user])
 
   useEffect(() => {
     if (user && books?.length > 0) {
-      console.log(user,books)
       loadNotifiedBooks();
 
     }
-  }, [user,books])
+  }, [user, books])
+
+  useEffect(() => {
+    console.log("intentando desuscribir...", bookNotified, books?.length)
+    if (books?.length > 0 && bookNotified === 0) {
+      console.log("Desuscribiendo...", bookNotified, books?.length)
+      unsubscribe();
+    }
+
+    if(!isSubscribed && bookNotified > 0)
+    {
+      subscribe();
+    }
+  }, [bookNotified])
+
+
   const loadNotifiedBooks = async () => {
     try {
       const res = await fetch("/api/books/notifications", { credentials: "include" });
@@ -43,14 +57,29 @@ export default function HomePage() {
 
       if (data && data?.length > 0) {
         const ids = new Set(data.map(book => book.id));
-        setNotifiedBookIds(ids)
+
+        if (ids) {
+          if (!isSubscribed) {
+            await subscribe();
+          }
+        }
+        if (!IsNotificationPushLoading) {
+          setNotifiedBookIds(ids)
+          setBookNotified(ids.size)
+        }
       }
     } catch (err) {
       console.error("Error loading notified books", err);
     }
   }
 
-  // Load books
+  const AddNumberToNotifiedBooks = (value: number): void => {
+
+    console.log(bookNotified)
+    setBookNotified((a) => a - value)
+  }
+
+
   const loadBooks = async () => {
     try {
       setIsLoaded(true)
@@ -98,7 +127,6 @@ export default function HomePage() {
                   <>
                     {
                       !user.isAdmin && (<>
-                        <PushNotificationManager />
                         <button
                           onClick={logout}
                           className="text-sm text-stone-600 hover:text-stone-800 transition-colors duration-200"
@@ -137,10 +165,10 @@ export default function HomePage() {
           </div>
         </header>
 
-        <main className= "max-w-7xl mx-auto px-4 py-8">
+        <main className="max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
             {filteredBooks.map((book, index) => (
-              <BookCard key={book.id} book={book} index={index} isNotified={notifiedBookIds.has(book.id)} />
+              <BookCard key={book.id} book={book} index={index} isNotified={notifiedBookIds.has(book.id)} decreaseNumber={AddNumberToNotifiedBooks} />
             ))}
           </div>
 
@@ -155,3 +183,4 @@ export default function HomePage() {
     </ViewTransition>
   )
 }
+
