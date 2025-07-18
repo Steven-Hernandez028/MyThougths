@@ -111,7 +111,7 @@ export function BookCard({ book, index, isNotified, decreaseNumber: AddNumber }:
       >
         <div className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden relative">
           {isNew && (
-            <div className="absolute top-3 right-3 z-10 bg-gradient-to-r from-emerald-400 to-cyan-400 text-white text-xs font-medium px-3 py-1.5 rounded-full animate-pulse shadow-lg">
+            <div className="absolute top-3 left-3 z-10 bg-gradient-to-r from-emerald-400 to-cyan-400 text-white text-xs font-medium px-3 py-1.5 rounded-full animate-pulse shadow-lg">
               NUEVO
             </div>
           )}
@@ -120,7 +120,7 @@ export function BookCard({ book, index, isNotified, decreaseNumber: AddNumber }:
             user && (
               <div
                 className={`
-              absolute top-3 ${isNew ? 'right-20' : 'right-3'} z-20 
+              absolute top-3 right-3 z-20 
               cursor-pointer transition-all duration-300 ease-out
               ${isHovered ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-4'}
               ${isUpdatingNotification ? 'pointer-events-none' : ''}
